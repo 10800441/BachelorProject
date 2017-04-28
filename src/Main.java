@@ -40,23 +40,21 @@ class Main {
         costMatrix = TSPFunctions.calculateCostMatrix();
         TSPFunctions.printCostMatrix();
 
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                DrawGraph.createAndShowGui(CITIES);
-            }
-        });
+        //visualisation of the tour
+//        SwingUtilities.invokeLater(new Runnable() {
+//            public void run() {
+//                DrawGraph.createAndShowGui(CITIES);
+//            }
+//        });
 
+        //2 opt move example
         //CITIES = Lin_Kernighan.makeSwap(CITIES.elementAt(2),CITIES.elementAt(4),CITIES.elementAt(3),CITIES.elementAt(5), CITIES);
 
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                DrawGraph.createAndShowGui(CITIES);
-            }
-        });
+
 
         // SOLVER
         //Use the original Lin-Kernighan algorithm
-        DoublyLinkedListImpl<City> lkOptimalTour = Lin_Kernighan.solve_Lin_Kernighan(costMatrix);
+       DoublyLinkedListImpl<City> lkOptimalTour = Lin_Kernighan.solve_Lin_Kernighan(costMatrix);
 
 
     }

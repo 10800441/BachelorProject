@@ -2,9 +2,22 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Random;
 
-/**
- * Created by Hans on 27-4-2017.
- */
+/****************************************************
+ **                Bachelor project                **
+ **                                                **
+ ** Mentor:     Daan van den Berg                  **
+ ** Name:       Martijn Heijstek                   **
+ ** Stud.num:   10800441                           **
+ ** Date:       21-04-2017                         **
+ ****************************************************
+ *  This Program implements Lin-Kernighan Helsgaun  *
+ *  algorithm for the Traveling Salesman Problem    *
+ *  Source:                                         *
+ *  http://akira.ruc.dk/~keld/research/LKH/LKH-1.3/DOC/LKH_REPORT.pdf
+ *  (Page 12)                                       *
+ ****************************************************/
+
+
 public class Lin_Kernighan {
 
     private static double minimalTourLength;
@@ -23,12 +36,15 @@ public class Lin_Kernighan {
         // STEP 2
         int i = 1;
         Random rd = new Random();
-        City t1 = lkOptimalTour.elementAt(1);
+        int index = rd.nextInt(lkOptimalTour.size()-1) +1;
+        City t1 = lkOptimalTour.elementAt(index);
         City t2;
 
         if (rd.nextBoolean()) t2 = lkOptimalTour.next(t1);
         else t2 = lkOptimalTour.prev(t1);
 
+        System.out.println("t1 = " + t1);
+        System.out.println("t2 = " + t2);
         //Step 3
         Edge x1 = new Edge(t1, t2, costMatrix[t1.id][t2.id]);
         Edge y1;
@@ -36,17 +52,27 @@ public class Lin_Kernighan {
         ArrayList<Edge> t2Edges = TSPFunctions.createCityEdgeSet(t2, lkOptimalTour);
         ArrayList<Edge> tourEdgeSet = TSPFunctions.createTourEdgeSet(lkOptimalTour);
 
+        System.out.println("TOUREDGESET " + tourEdgeSet);
+
+
         // Could result in backtracking
         for (Edge t2Edge : t2Edges) {
+            System.out.println(t2Edge);
 
             //STEP 4
             // Find a y1 that is smaller than x1 and not yet in tour
+
+
+
+
             if (t2Edge.length < x1.length && !tourEdgeSet.contains(t2Edge)) {
                 y1 = t2Edge;
+                System.out.println("Edge y1 = " + y1);
 
                 City t3 = null;
                 if(t2Edge.to == t2) t3 = t2Edge.from;
                 else if (t2Edge.from == t2) t3 = t2Edge.to;
+                System.out.println("t3 = " + t3);
 
                 //STEP 5
                 i++;
@@ -58,9 +84,11 @@ public class Lin_Kernighan {
 
                     //take an egde that is in the current tour
                     if(tourEdgeSet.contains(t3Edge)){
+
                         City t4 = null;
                         if(t3Edge.to == t3) t4 = t3Edge.from;
                         else if (t3Edge.from == t3) t4 = t3Edge.to;
+                        System.out.println("City 4 = " + t4);
 
                         ArrayList<Edge> t4Edges = TSPFunctions.createCityEdgeSet(t4, lkOptimalTour);
                         for (Edge t4Edge : t4Edges){

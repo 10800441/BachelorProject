@@ -7,6 +7,16 @@ import java.util.Collections;
 import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
 
+/****************************************************
+ **                Bachelor project                **
+ **                                                **
+ ** Mentor:     Daan van den Berg                  **
+ ** Name:       Martijn Heijstek                   **
+ ** Stud.num:   10800441                           **
+ ** Date:       21-04-2017                         **
+ ****************************************************
+ *  Functions applicable to the TSP                 *
+ ****************************************************/
 
 public class TSPFunctions {
     private static int TOTAL_CITIES = 0;
