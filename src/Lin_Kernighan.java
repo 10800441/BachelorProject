@@ -10,15 +10,15 @@ public class Lin_Kernighan {
     private static double minimalTourLength;
 
     public static DoublyLinkedListImpl<City> solve_Lin_Kernighan(double[][] costMatrix) {
+        System.out.println("\n-------------------------------------------------------------" +
+                "\nThe original Lin-Kernighan impementation\n");
+
         System.out.println("\nRandom tour \n");
         DoublyLinkedListImpl<City> lkOptimalTour = TSPFunctions.generateRandomTour();
         minimalTourLength = TSPFunctions.calculateTourLenght(lkOptimalTour);
 
-//        SwingUtilities.invokeLater(new Runnable() {
-//            public void run() {
-//                DrawGraph.createAndShowGui(lkOptimalTour);
-//            }
-//        });
+
+
 
         // STEP 2
         int i = 1;
@@ -69,7 +69,9 @@ public class Lin_Kernighan {
                             if(t4Edge.to == t1){
                                 Edge xi = t3Edge;
                                 Edge yi = t4Edge;
-                                lkOptimalTour = makeSwap(x1,xi,y1,yi,t1,t2,t3,t4, lkOptimalTour);
+                                lkOptimalTour = makeSwap(t1,t2,t3,t4, lkOptimalTour);
+                                System.out.println("\nAfter one 2opt iteration \n");
+                                double newminimalTourLength = TSPFunctions.calculateTourLenght(lkOptimalTour);
 
                                 //        SwingUtilities.invokeLater(new Runnable() {
 //            public void run() {
@@ -94,20 +96,24 @@ public class Lin_Kernighan {
 
     return lkOptimalTour;
     }
-
-    private static DoublyLinkedListImpl<City> makeSwap(Edge x1, Edge xi, Edge y1, Edge yi,
-                                                       City t1, City t2, City t3, City t4,
+    public static DoublyLinkedListImpl<City> makeSwap(City t1, City t2, City t3, City t4,
                                                        DoublyLinkedListImpl<City> lkOptimalTour) {
         DoublyLinkedListImpl<City> newOptimal = new DoublyLinkedListImpl<City>();
-        for (int a = 1; a <= lkOptimalTour.size(); a ++){
-            newOptimal.
-            if (lkOptimalTour.elementAt(a) == t1){
+        newOptimal.addFirst(t2);
+        City loop1 = t3;
+
+        while(loop1 != t4){
+            if(loop1 != t2 && loop1 != t1) newOptimal.addFirst(loop1);
+            loop1 = lkOptimalTour.next(loop1);
         }
-
-
-
-        return newOptimal;
-    }
+        newOptimal.addFirst(t4);
+        City loop2 = t1;
+        while(loop1 != t2){
+            if(loop1 != t3 && loop1 != t4) newOptimal.addFirst(loop1);
+            loop1 = lkOptimalTour.next(loop1);
+        }
+            return newOptimal;
+        }
 
 
     //Compute A-nearness matrix

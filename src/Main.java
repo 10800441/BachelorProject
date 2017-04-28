@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -39,6 +40,19 @@ class Main {
         costMatrix = TSPFunctions.calculateCostMatrix();
         TSPFunctions.printCostMatrix();
 
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                DrawGraph.createAndShowGui(CITIES);
+            }
+        });
+
+        //CITIES = Lin_Kernighan.makeSwap(CITIES.elementAt(2),CITIES.elementAt(4),CITIES.elementAt(3),CITIES.elementAt(5), CITIES);
+
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                DrawGraph.createAndShowGui(CITIES);
+            }
+        });
 
         // SOLVER
         //Use the original Lin-Kernighan algorithm
