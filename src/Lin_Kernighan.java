@@ -22,13 +22,23 @@ public class Lin_Kernighan {
 
     private static double minimalTourLength;
 
-    public static DoublyLinkedListImpl<City> solve_Lin_Kernighan(double[][] costMatrix) {
+    public static DoublyLinkedListImpl<City> solve_Lin_Kernighan(double[][] costMatrix, DoublyLinkedListImpl<City> emptyGrid) {
         System.out.println("\n-------------------------------------------------------------" +
                 "\nThe original Lin-Kernighan impementation\n");
 
         System.out.println("\nRandom tour \n");
-        DoublyLinkedListImpl<City> lkOptimalTour = TSPFunctions.generateRandomTour();
-        minimalTourLength = TSPFunctions.calculateTourLenght(lkOptimalTour);
+        DoublyLinkedListImpl<City> lkOptimalTour = TSPFunctions.generateRandomTour(emptyGrid);
+        minimalTourLength = TSPFunctions.calculateTourLenght(lkOptimalTour, costMatrix);
+
+        //2 opt move example
+        //CITIES = Lin_Kernighan.makeSwap(CITIES.elementAt(2),CITIES.elementAt(4),CITIES.elementAt(3),CITIES.elementAt(5), CITIES);
+        //visualisation of the tour
+//        SwingUtilities.invokeLater(new Runnable() {
+//            public void run() {
+//
+//                DrawGraph.createAndShowGui(CITIES);
+//            }
+//        });
 
 
 
@@ -49,21 +59,18 @@ public class Lin_Kernighan {
         Edge x1 = new Edge(t1, t2, costMatrix[t1.id][t2.id]);
         Edge y1;
 
-        ArrayList<Edge> t2Edges = TSPFunctions.createCityEdgeSet(t2, lkOptimalTour);
-        ArrayList<Edge> tourEdgeSet = TSPFunctions.createTourEdgeSet(lkOptimalTour);
+        ArrayList<Edge> t2Edges = TSPFunctions.createCityEdgeSet(t2, lkOptimalTour, costMatrix);
+        ArrayList<Edge> tourEdgeSet = TSPFunctions.createTourEdgeSet(lkOptimalTour, costMatrix);
 
         System.out.println("TOUREDGESET " + tourEdgeSet);
 
 
         // Could result in backtracking
         for (Edge t2Edge : t2Edges) {
-            System.out.println(t2Edge);
 
             //STEP 4
             // Find a y1 that is smaller than x1 and not yet in tour
-
-
-
+            System.out.println("Edge t2 = " + t2Edge);
 
             if (t2Edge.length < x1.length && !tourEdgeSet.contains(t2Edge)) {
                 y1 = t2Edge;
@@ -79,7 +86,7 @@ public class Lin_Kernighan {
 
                 //STEP 6
                 //search trough all edges of t3
-                ArrayList<Edge> t3Edges = TSPFunctions.createCityEdgeSet(t3, lkOptimalTour);
+                ArrayList<Edge> t3Edges = TSPFunctions.createCityEdgeSet(t3, lkOptimalTour, costMatrix);
                 for (Edge t3Edge : t3Edges) {
 
                     //take an egde that is in the current tour
@@ -90,7 +97,7 @@ public class Lin_Kernighan {
                         else if (t3Edge.from == t3) t4 = t3Edge.to;
                         System.out.println("City 4 = " + t4);
 
-                        ArrayList<Edge> t4Edges = TSPFunctions.createCityEdgeSet(t4, lkOptimalTour);
+                        ArrayList<Edge> t4Edges = TSPFunctions.createCityEdgeSet(t4, lkOptimalTour ,costMatrix);
                         for (Edge t4Edge : t4Edges){
 
                             // t4 must be connected to t1
@@ -99,7 +106,7 @@ public class Lin_Kernighan {
                                 Edge yi = t4Edge;
                                 lkOptimalTour = makeSwap(t1,t2,t3,t4, lkOptimalTour);
                                 System.out.println("\nAfter one 2opt iteration \n");
-                                double newminimalTourLength = TSPFunctions.calculateTourLenght(lkOptimalTour);
+                                double newminimalTourLength = TSPFunctions.calculateTourLenght(lkOptimalTour, costMatrix);
 
                                 //        SwingUtilities.invokeLater(new Runnable() {
 //            public void run() {

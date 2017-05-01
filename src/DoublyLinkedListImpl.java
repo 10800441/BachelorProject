@@ -2,6 +2,14 @@
 
 import java.util.NoSuchElementException;
 
+/****************************************************
+ **                Bachelor project                **
+ ** DrawGraph.java                                 **
+ ** Source: http://stackoverflow.com/questions/8693342/drawing-a-simple-line-graph-in-java
+ ** Adjusted to work for a TSP instantiation       **
+ ****************************************************
+ */
+
 public class DoublyLinkedListImpl<E> {
 
     private Node head;
@@ -120,7 +128,7 @@ public class DoublyLinkedListImpl<E> {
         return tmp.element;
     }
 
-    // added functionality "elementAt"
+    // Added functionality "elementAt"
     // source: http://algorithms.tutorialhorizon.com/doubly-linked-list-complete-implementation/
     public E elementAt(int index){
         if(index>size) throw new NoSuchElementException();
@@ -132,7 +140,7 @@ public class DoublyLinkedListImpl<E> {
         return n.element;
     }
 
-    //Given a city yhis operation computes the next city in the list
+    // Given a city yhis operation computes the next city in the list
     public E next(E key) {
         Node tmp = head;
         while (tmp != null && !tmp.element.toString().equals(key.toString())) {
@@ -149,7 +157,7 @@ public class DoublyLinkedListImpl<E> {
 
     }
 
-    //Given a city yhis operation computes the next city in the list
+    // Given a city this operation computes the next city in the list
     public E prev(E key) {
         Node tmp = tail;
         while (tmp != null && !tmp.element.toString().equals(key.toString())) {
@@ -168,14 +176,6 @@ public class DoublyLinkedListImpl<E> {
 
     public static void main(String a[]){
 
-        DoublyLinkedListImpl<Integer> dll = new DoublyLinkedListImpl<Integer>();
-        dll.addFirst(10);
-       dll.addFirst(34);
-       dll.addLast(56);
-        dll.addLast(364);
-      dll.iterateForward();
-      dll.removeFirst();
-        dll.removeLast();
-       dll.iterateBackward();
+
     }
 }

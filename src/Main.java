@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -6,6 +7,7 @@ import java.util.ArrayList;
 import java.io.*;
 import java.util.Collections;
 import java.util.Random;
+import java.util.concurrent.SynchronousQueue;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
@@ -24,7 +26,18 @@ import static java.lang.Math.sqrt;
 
 
 class Main {
-    private static int TOTAL_CITIES = 0;
+
+
+    // percentage of preservation when applieing the reduce operator
+    private static final int PRESERVE = 100;
+
+    private static final int SHAKE = 50;
+    // Amount of cities in a perfect configuration instance (non reduced
+    private static final int TOTAL_CITIES = 12;
+
+    // Distance between cities in a perfect configuration instance
+    private static final int XYdistance = 12;
+
     private static DoublyLinkedListImpl<City> CITIES;
     private static double[][] costMatrix;
 
@@ -32,30 +45,35 @@ class Main {
     public static void main(String[] args) {
 
 
-
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         // INITIALISATION OF THE GRID
-        // Load cities form Cities.txt into an ArrayList
-        CITIES = TSPFunctions.makeCityList();
-        TOTAL_CITIES = CITIES.size();
-        costMatrix = TSPFunctions.calculateCostMatrix();
-        TSPFunctions.printCostMatrix();
 
-        //visualisation of the tour
-//        SwingUtilities.invokeLater(new Runnable() {
-//            public void run() {
-//                DrawGraph.createAndShowGui(CITIES);
-//            }
-//        });
+        // make a grid with coordinates from the Cities.txt file
+        //        CITIES = TSPFunctions.makeCityList();
 
-        //2 opt move example
-        //CITIES = Lin_Kernighan.makeSwap(CITIES.elementAt(2),CITIES.elementAt(4),CITIES.elementAt(3),CITIES.elementAt(5), CITIES);
+        // Make a perfect grid
+        CITIES = TSPFunctions.makePerfectCityList(TOTAL_CITIES, XYdistance);
+
+        costMatrix = TSPFunctions.calculateCostMatrix(CITIES);
+        TSPFunctions.printCostMatrix(costMatrix);
+
+    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        // MUTATING THE GRID
+
+        // Reduction of the amount of cities
+        //CITIES = TSPFunctions.reduce(CITIES, PRESERVE);
+
+        CITIES = TSPFunctions.shake(CITIES, costMatrix, XYdistance, SHAKE);
+
 
 
 
         // SOLVER
         //Use the original Lin-Kernighan algorithm
-       DoublyLinkedListImpl<City> lkOptimalTour = Lin_Kernighan.solve_Lin_Kernighan(costMatrix);
+        //DoublyLinkedListImpl<City> lkOptimalTour = Lin_Kernighan.solve_Lin_Kernighan(costMatrix);
 
-
+        // PrintGrid
+        TSPFunctions.printGrid(CITIES);
     }
 }
+

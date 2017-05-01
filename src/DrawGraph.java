@@ -14,6 +14,14 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+/****************************************************
+ **                Bachelor project                **
+ ** DrawGraph.java                                 **
+ ** Source: http://stackoverflow.com/questions/8693342/drawing-a-simple-line-graph-in-java
+ ** Adjusted to work for a TSP instantiation       **
+ ****************************************************
+ */
+
 public class DrawGraph extends JPanel {
 
     private int width = 200;
@@ -57,12 +65,12 @@ public class DrawGraph extends JPanel {
             int y1 = y0;
              if (SOLUTION.size() > 0) {
                 g2.setColor(gridColor);
-                g2.drawLine(padding + labelPadding + 1 + pointWidth, y0, getWidth() - padding, y1);
+                g2.drawLine(padding + labelPadding + pointWidth, y0, getWidth() - padding, y1);
                 g2.setColor(Color.BLACK);
                 String yLabel = "" + i;
                 FontMetrics metrics = g2.getFontMetrics();
                 int labelWidth = metrics.stringWidth(yLabel);
-                //g2.drawString(yLabel, x0 - labelWidth - 5, y0 + (metrics.getHeight() / 2) - 3);
+                g2.drawString(yLabel, x0 - labelWidth - 5, y0 + (metrics.getHeight() / 2) - 3);
             }
             g2.drawLine(x0, y0, x1, y1);
         }
@@ -70,7 +78,7 @@ public class DrawGraph extends JPanel {
         // and for x axis
         for (int i = 0; i < getMaxX(); i++) {
             if (SOLUTION.size() > 1) {
-                int x0 = i * (getWidth() - padding * 2 - labelPadding) / (SOLUTION.size() - 1) + padding + labelPadding;
+                int x0 = padding + labelPadding + (i * (getWidth() - padding * 2 - labelPadding)/getMaxX());
                 int x1 = x0;
                 int y0 = getHeight() - padding - labelPadding;
                 int y1 = y0 - pointWidth;
@@ -119,6 +127,7 @@ public class DrawGraph extends JPanel {
             g2.fillOval(x, y, ovalW, ovalH);
         }
     }
+
     private int getMaxX() {
         int maxScore = 0;
         for (int i = 1; i <= SOLUTION.size(); i++) {
@@ -126,6 +135,7 @@ public class DrawGraph extends JPanel {
         }
         return maxScore+1;
     }
+
     private double getMaxY() {
         int maxScore = 0;
         for (int i = 1; i <= SOLUTION.size(); i++) {
