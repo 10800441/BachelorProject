@@ -1,5 +1,6 @@
 
 
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 /****************************************************
@@ -51,13 +52,15 @@ public class DoublyLinkedListImpl<E> {
      * adds element at the starting of the linked list
      * @param element
      */
+
+
     public void addFirst(E element) {
         Node tmp = new Node(element, head, null);
         if(head != null ) {head.prev = tmp;}
         head = tmp;
         if(tail == null) { tail = tmp;}
         size++;
-        System.out.println("adding: "+element);
+
     }
 
     /**
@@ -71,20 +74,20 @@ public class DoublyLinkedListImpl<E> {
         tail = tmp;
         if(head == null) { head = tmp;}
         size++;
-        System.out.println("adding: "+element);
+
     }
 
     /**
      * this method walks forward through the linked list
      */
-    public void iterateForward(){
-
-        System.out.println("iterating forward..");
-        Node tmp = head;
+    public ArrayList<E> iterateForward(){
+ArrayList<E> elements= new ArrayList<>();
+           Node tmp = head;
         while(tmp != null){
-            System.out.println(tmp.element);
+            elements.add(tmp.element);
             tmp = tmp.next;
         }
+        return elements;
     }
 
     /**
@@ -143,7 +146,7 @@ public class DoublyLinkedListImpl<E> {
     // Given a city yhis operation computes the next city in the list
     public E next(E key) {
         Node tmp = head;
-        while (tmp != null && !tmp.element.toString().equals(key.toString())) {
+        while (tmp != null && !tmp.element.toString().equals(key.toString()) && !tmp.element.toString().equals(tail.element.toString())) {
           tmp = tmp.next;
         }
 

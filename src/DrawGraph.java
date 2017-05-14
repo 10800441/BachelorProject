@@ -33,7 +33,9 @@ public class DrawGraph extends JPanel {
     private Color gridColor = new Color(200, 200, 200, 200);
     private static final Stroke GRAPH_STROKE = new BasicStroke(2f);
     private int pointWidth = 8;
-    private static DoublyLinkedListImpl<City> SOLUTION;
+    private static DoublyLinkedListImpl<City> head;
+    private static DoublyLinkedListImpl<City> tail;
+    private static ArrayList<City> grid;
 
 
     @Override
@@ -46,11 +48,12 @@ public class DrawGraph extends JPanel {
         double yScale = ((double) getHeight() - 2 * padding - labelPadding) / getMaxY();
 
         List<Point> graphPoints = new ArrayList<>();
-        for (int i = 1; i <= SOLUTION.size(); i++) {
-            int x1 = (int) (SOLUTION.elementAt(i).x * xScale + padding + labelPadding);
-            int y1 = (int) (SOLUTION.elementAt(i).y * yScale + padding);
+        for (City city: grid){
+            int x1 = (int) (city.x * xScale + padding + labelPadding);
+            int y1 = (int) (city.y * yScale + padding);
             graphPoints.add(new Point(x1, y1));
         }
+
 
         // draw white background
         g2.setColor(Color.WHITE);
@@ -58,12 +61,14 @@ public class DrawGraph extends JPanel {
         g2.setColor(Color.BLACK);
 
         // create hatch marks and grid lines for y axis.
+
+
         for (int i = 0; i < getMaxY() + 1; i++) {
             int x0 = padding + labelPadding;
             int x1 = pointWidth + padding + labelPadding;
             int y0 = getHeight() - ((i * (getHeight() - padding * 2 - labelPadding)) / (int) getMaxY() + padding + labelPadding);
             int y1 = y0;
-             if (SOLUTION.size() > 0) {
+             if (grid.size() > 0) {
                 g2.setColor(gridColor);
                 g2.drawLine(padding + labelPadding + pointWidth, y0, getWidth() - padding, y1);
                 g2.setColor(Color.BLACK);
@@ -77,15 +82,15 @@ public class DrawGraph extends JPanel {
 
         // and for x axis
         for (int i = 0; i < getMaxX(); i++) {
-            if (SOLUTION.size() > 1) {
+            if (grid.size() > 1) {
                 int x0 = padding + labelPadding + (i * (getWidth() - padding * 2 - labelPadding)/getMaxX());
                 int x1 = x0;
                 int y0 = getHeight() - padding - labelPadding;
                 int y1 = y0 - pointWidth;
-                if ((i % ((int) ((SOLUTION.size() / 20.0)) + 1)) == 0) {
+                if ((i % ((int) ((grid.size() / 20.0)) + 1)) == 0) {
                     g2.setColor(gridColor);
                     g2.drawLine(x0, getHeight() - padding - labelPadding - 1 - pointWidth, x1, padding);
-
+                    g2.setColor(Color.black);
                     String xLabel = i + "";
                     FontMetrics metrics = g2.getFontMetrics();
                     int labelWidth = metrics.stringWidth(xLabel);
@@ -103,18 +108,20 @@ public class DrawGraph extends JPanel {
         g2.setColor(lineColor);
         g2.setStroke(GRAPH_STROKE);
         // Closing the tour
-        int startx = (int) (SOLUTION.elementAt(1).x * xScale + padding + labelPadding);
-        int starty = (int) (SOLUTION.elementAt(1).y * yScale + padding);
-        int endx = (int) (SOLUTION.elementAt(SOLUTION.size()).x * xScale + padding + labelPadding);
-        int endy = (int) (SOLUTION.elementAt(SOLUTION.size()).y * yScale + padding);
-        g2.drawLine(startx, starty, endx, endy);
+//        int startx = (int) (head.elementAt(1).x * xScale + padding + labelPadding);
+//        int starty = (int) (head.elementAt(1).y * yScale + padding);
+//        int endx = (int) (tail.elementAt(SOLUTION.size()).x * xScale + padding + labelPadding);
+//        int endy = (int) (SOLUTION.elementAt(SOLUTION.size()).y * yScale + padding);
+//        g2.drawLine(startx, starty, endx, endy);
 
-        for (int i = 0; i < graphPoints.size() - 1; i++) {
-            int x1 = graphPoints.get(i).x;
-            int y1 = graphPoints.get(i).y;
-            int x2 = graphPoints.get(i + 1).x;
-            int y2 = graphPoints.get(i + 1).y;
-            g2.drawLine(x1, y1, x2, y2);
+        if(head != null){
+            for (int i = 1; i <= head.size(); i++) {
+                int x1 = graphPoints.get(head.elementAt(i).id).x;
+                int y1 = graphPoints.get(head.elementAt(i).id).y;
+                int x2 = graphPoints.get(tail.elementAt(i).id).x;
+                int y2 = graphPoints.get(tail.elementAt(i).id).y;
+                g2.drawLine(x1, y1, x2, y2);
+            }
         }
 
         g2.setStroke(oldStroke);
@@ -130,22 +137,27 @@ public class DrawGraph extends JPanel {
 
     private int getMaxX() {
         int maxScore = 0;
-        for (int i = 1; i <= SOLUTION.size(); i++) {
-            if(SOLUTION.elementAt(i).x > maxScore) maxScore = SOLUTION.elementAt(i).x;
+        for (City city: grid) {
+            if(city.x > maxScore) maxScore = city.x;
         }
         return maxScore+1;
     }
 
     private double getMaxY() {
         int maxScore = 0;
-        for (int i = 1; i <= SOLUTION.size(); i++) {
-            if(SOLUTION.elementAt(i).y > maxScore) maxScore = SOLUTION.elementAt(i).y;
+        for (City city: grid) {
+            if(city.y > maxScore) maxScore = city.y;
         }
         return maxScore+1;
     }
 
-    public static void createAndShowGui(DoublyLinkedListImpl<City> solution) {
-        SOLUTION = solution;
+    public static void createAndShowGui(Tour solution, ArrayList<City> solGrid) {
+        if(solution != null){
+            head = solution.head;
+            tail = solution.tail;
+        }
+
+        grid = solGrid;
 
         DrawGraph mainPanel = new DrawGraph();
         mainPanel.setPreferredSize(new Dimension(200, 200));
@@ -158,10 +170,14 @@ public class DrawGraph extends JPanel {
         frame.setVisible(true);
     }
 
+
     public static void main(String[] args) {
+        Tour T = null;
+        ArrayList<City> A = new ArrayList<City>();
+
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                createAndShowGui(SOLUTION);
+                createAndShowGui(T,A);
             }
         });
     }

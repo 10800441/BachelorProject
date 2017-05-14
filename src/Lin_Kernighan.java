@@ -1,6 +1,9 @@
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Stack;
 
 /****************************************************
  **                Bachelor project                **
@@ -10,7 +13,7 @@ import java.util.Random;
  ** Stud.num:   10800441                           **
  ** Date:       21-04-2017                         **
  ****************************************************
- *  This Program implements Lin-Kernighan Helsgaun  *
+ *  This Program implements Lin-Kernighan
  *  algorithm for the Traveling Salesman Problem    *
  *  Source:                                         *
  *  http://akira.ruc.dk/~keld/research/LKH/LKH-1.3/DOC/LKH_REPORT.pdf
@@ -20,151 +23,284 @@ import java.util.Random;
 
 public class Lin_Kernighan {
 
-    private static double minimalTourLength;
-
-    public static DoublyLinkedListImpl<City> solve_Lin_Kernighan(double[][] costMatrix, DoublyLinkedListImpl<City> emptyGrid) {
+    public static Tour solve_Lin_Kernighan(ArrayList<City> emptyGrid) {
         System.out.println("\n-------------------------------------------------------------" +
-                "\nThe original Lin-Kernighan impementation\n");
+                "\nSimplified Lin-Kernighan impementation\n");
 
-        System.out.println("\nRandom tour \n");
-        DoublyLinkedListImpl<City> lkOptimalTour = TSPFunctions.generateRandomTour(emptyGrid);
-        minimalTourLength = TSPFunctions.calculateTourLenght(lkOptimalTour, costMatrix);
+        System.out.println("\n -> STEP 1: Random tour \n");
+        Tour tour = TSPFunctions.generateRandomTour(emptyGrid);
 
-        //2 opt move example
-        //CITIES = Lin_Kernighan.makeSwap(CITIES.elementAt(2),CITIES.elementAt(4),CITIES.elementAt(3),CITIES.elementAt(5), CITIES);
-        //visualisation of the tour
-//        SwingUtilities.invokeLater(new Runnable() {
-//            public void run() {
-//
-//                DrawGraph.createAndShowGui(CITIES);
-//            }
-//        });
+//        System.out.println("mst\n " + TSPFunctions.MST(emptyGrid, emptyGrid.size()));
+
+        Tour lkOptimalTour = null;
+        double gain = 1.0;
+        while(gain >= 1.0) {
 
 
+            // STEP 2
+            int i = 1;
+            System.out.println("\n -> STEP 2 choose t1");
+            Random rd = new Random();
+
+            // Find an index in range
+            int index = rd.nextInt(tour.amountOfEdges() - 1) + 1;
+            City t1 = tour.head.elementAt(index);
+
+            System.out.println("t1 = " + t1);
 
 
-        // STEP 2
-        int i = 1;
-        Random rd = new Random();
-        int index = rd.nextInt(lkOptimalTour.size()-1) +1;
-        City t1 = lkOptimalTour.elementAt(index);
-        City t2;
+            //Step 3
+            System.out.println("\n -> STEP 3, choose x1");
 
-        if (rd.nextBoolean()) t2 = lkOptimalTour.next(t1);
-        else t2 = lkOptimalTour.prev(t1);
+           ArrayList<City> t2Stack = new ArrayList<>();
+            if (rd.nextBoolean()){
+                t2Stack.add(tour.next(t1));
+                t2Stack.add(tour.prev(t1));
+            } else {
+                t2Stack.add(tour.prev(t1));
+                t2Stack.add(tour.next(t1));
+            }
+            boolean returnTo2 = false;
+            for(City t2: t2Stack) {
 
-        System.out.println("t1 = " + t1);
-        System.out.println("t2 = " + t2);
-        //Step 3
-        Edge x1 = new Edge(t1, t2, costMatrix[t1.id][t2.id]);
-        Edge y1;
+                if(!returnTo2) {
+                    Edge x1 = new Edge(t1, t2, Main.costMatrix[t1.id][t2.id]);
 
-        ArrayList<Edge> t2Edges = TSPFunctions.createCityEdgeSet(t2, lkOptimalTour, costMatrix);
-        ArrayList<Edge> tourEdgeSet = TSPFunctions.createTourEdgeSet(lkOptimalTour, costMatrix);
+                    System.out.print("\nx1 = " + x1.from.id + " - " + x1.to.id);
+                    ArrayList<Edge> candidateY1Edges = TSPFunctions.createCityEdgeSet(t2, emptyGrid);
 
-        System.out.println("TOUREDGESET " + tourEdgeSet);
+                    Stack<Edge> y1Edges = new Stack<>();
 
+                    // stack all possible y1 candidates
+                    for (Edge candidateY1 : candidateY1Edges) {
 
-        // Could result in backtracking
-        for (Edge t2Edge : t2Edges) {
+                    //STEP 4
+                        // Find a y1 that is smaller than x1 and not yet in tour
+                        if ((candidateY1.length < x1.length) && !tour.edgeInTour(candidateY1)) {
+                            y1Edges.push(candidateY1);
+                        }
+                    }
 
-            //STEP 4
-            // Find a y1 that is smaller than x1 and not yet in tour
-            System.out.println("Edge t2 = " + t2Edge);
+                    // loop trough all y1 candidates
+                    boolean returnToStep3 = false;
+                    for (Edge y1: y1Edges) {
 
-            if (t2Edge.length < x1.length && !tourEdgeSet.contains(t2Edge)) {
-                y1 = t2Edge;
-                System.out.println("Edge y1 = " + y1);
+                        if(!returnTo2 && !returnToStep3) {
 
-                City t3 = null;
-                if(t2Edge.to == t2) t3 = t2Edge.from;
-                else if (t2Edge.from == t2) t3 = t2Edge.to;
-                System.out.println("t3 = " + t3);
+                            System.out.println("\n -> STEP 4, choose y1");
+                            System.out.println("\n y1 = " + y1.from.id + " - " + y1.to.id);
 
-                //STEP 5
-                i++;
+                            // Loop
+                            System.out.println("\n -> STEP 5, enter loop");
 
-                //STEP 6
-                //search trough all edges of t3
-                ArrayList<Edge> t3Edges = TSPFunctions.createCityEdgeSet(t3, lkOptimalTour, costMatrix);
-                for (Edge t3Edge : t3Edges) {
+                            i++;
+                            // contains all previously chosen xi and yi's
+                            ArrayList<Edge> xList = new ArrayList<>();
+                            ArrayList<Edge> yList = new ArrayList<>();
 
-                    //take an egde that is in the current tour
-                    if(tourEdgeSet.contains(t3Edge)){
+                            xList.add(x1);
+                            yList.add(y1);
 
-                        City t4 = null;
-                        if(t3Edge.to == t3) t4 = t3Edge.from;
-                        else if (t3Edge.from == t3) t4 = t3Edge.to;
-                        System.out.println("City 4 = " + t4);
+                            // Loop over t3's
+                            City t2i_1 = y1.to;
+                            while (t2i_1 != null && !returnTo2 && !returnToStep3) {
+                                // Determine t2i-1
+                                t2i_1 = yList.get(yList.size() - 1).to;
+                                System.out.println("t2i-1 = city " + t2i_1.id);
 
-                        ArrayList<Edge> t4Edges = TSPFunctions.createCityEdgeSet(t4, lkOptimalTour ,costMatrix);
-                        for (Edge t4Edge : t4Edges){
+                               // Step 6 choose the next xi and yi, if not possible returns null
+                                xiyiTour chosenEdges = chooseXiYi(tour, emptyGrid, t2i_1, x1.from, xList, yList);
 
-                            // t4 must be connected to t1
-                            if(t4Edge.to == t1){
-                                Edge xi = t3Edge;
-                                Edge yi = t4Edge;
-                                lkOptimalTour = makeSwap(t1,t2,t3,t4, lkOptimalTour);
-                                System.out.println("\nAfter one 2opt iteration \n");
-                                double newminimalTourLength = TSPFunctions.calculateTourLenght(lkOptimalTour, costMatrix);
+                                if (chosenEdges == null) {
+                                    System.out.println("- > STEP 12 no new xi is found ");
+                                    returnTo2 = true;
+                                }
 
-                                //        SwingUtilities.invokeLater(new Runnable() {
-//            public void run() {
-//                DrawGraph.createAndShowGui(lkOptimalTour);
-//            }
-//        });
+                                // If the distance is is shorter the tour is improved
+                                else if (chosenEdges.tour.length < tour.length) {
+                                    gain = tour.length - chosenEdges.tour.length;
+                                    System.out.println("\nFound improvement, Gain = " + gain + ", back to step 2..");
+                                    tour = chosenEdges.tour;
+                                    returnToStep3 = true;
+                                    break;
+                                } else {
 
+                                // xi is set
+                                xList.add(chosenEdges.xi);
+
+                                // Determine the new t2i;
+                                Stack<Edge> yiEdges = new Stack<>();
+                                City t2i = xList.get(xList.size() - 1).to;
+
+                                // stack all possible yi candidates
+                                ArrayList<Edge> candidateYiEdges = TSPFunctions.createCityEdgeSet(t2i, emptyGrid);
+                                for (Edge candidateYi : candidateYiEdges) {
+                                    if (!tour.edgeInTour(candidateYi) && candidateYi != chosenEdges.yi && !yList.contains(candidateYi) && !yList.contains(candidateYi.Inverse())) {
+                                        yiEdges.push(candidateYi);
+                                    }
+                                }
+
+                                while (!yiEdges.isEmpty() && !returnToStep3) {
+                                    Edge yi = yiEdges.pop();
+                                    System.out.println("yi = " + yi);
+                                    yList.add(yi);
+                                    // Determine the new t2i_1
+                                    t2i_1 = yi.to;
+                                }
                             }
                         }
-
-
                     }
                 }
+                if (returnTo2) System.out.println("returning to step 2....");
+                System.out.println("trying alternative for x1");
+                }
+            }
+        }
+        return tour;
+    }
 
 
 
+    private static xiyiTour chooseXiYi(Tour tour, ArrayList<City>emptyGrid, City t2i_1, City t1, ArrayList<Edge> xList, ArrayList<Edge> yList){
+        // STEP 6
+        Edge xi = null;
+        Edge yi = null;
+        System.out.println("\n -> STEP 6");
 
+        // Search trough all edges of t3
+        ArrayList<Edge> candidateXiEdges = TSPFunctions.createCityEdgeSet(t2i_1, emptyGrid);
+        Tour noSubTour = null;
+        for (Edge candidateXi : candidateXiEdges) {
+
+            //TODO x2 y2 are wrong
+            // Take an egde that is in the current tour but not already in xiList
+            if ((tour.next(t2i_1) == candidateXi.to || tour.prev(t2i_1) == candidateXi.to) &&
+                    (!xList.contains(candidateXi) && !xList.contains(candidateXi.Inverse())) && candidateXi.to != t1) {
+
+                // Check if the current solution is valid by closing the tour and checking for subtours
+
+
+                Edge yiCandidate = new Edge(candidateXi.to, t1, Main.costMatrix[t1.id][candidateXi.to.id]);
+
+                System.out.println("candidateXi = " + candidateXi.from + " - " + candidateXi.to);
+                System.out.println("yiCandidate = " + yiCandidate.from + " - " + yiCandidate.to);
+
+
+                // Sub tour elimination; there should be exactly one possible xi
+                noSubTour = makeLambdaSwap(xList, yList, candidateXi, yiCandidate, tour);
+                // if there is a valid tour keep xi
+                if (TSPFunctions.isValidTour(noSubTour, emptyGrid)) {
+                    xi = candidateXi;
+                    System.out.println("Valid tour found: xi = " + xi);
+
+                    return new xiyiTour(xi, yiCandidate, noSubTour);
+                }
+            }
+        }
+        return null;
+    }
+
+    public static double calculateGain(ArrayList<Edge> xiList, ArrayList<Edge> yiList) {
+        double xiLength = 0.0;
+        double yiLength = 0.0;
+        for (Edge xEdge : xiList) xiLength += xEdge.length;
+        for (Edge yEdge : yiList) yiLength += yEdge.length;
+
+        return xiLength - yiLength;
+    }
+
+    // NOT WORKING PROPERLY
+//    // 2 opt operator to change the order of cities in the tour
+    public static Tour makeSwap(Edge x1, Edge y1, Edge xi, Edge yi, Tour oldTour) {
+        System.out.println("Swap procedure");
+        System.out.println("x1 " + x1.from.id + " - " + x1.to.id);
+        System.out.println("y1 " + y1.from.id + " - " + y1.to.id);
+        System.out.println("xi " + xi.from.id + " - " + xi.to.id);
+        System.out.println("yi " + yi.from.id + " - " + yi.to.id);
+
+
+        DoublyLinkedListImpl<City> head = new DoublyLinkedListImpl<>();
+        DoublyLinkedListImpl<City> tail = new DoublyLinkedListImpl<>();
+
+        for (int k = 1; k <= oldTour.head.size(); k++) {
+            City from = oldTour.head.elementAt(k);
+            City to = oldTour.tail.elementAt(k);
+
+            if ((from == x1.from && to == x1.to) || (to == x1.from && from == x1.to) ||
+                    (from == xi.from && to == xi.to) || (to == xi.from && from == xi.to)) {
+
+
+            } else {
+                head.addLast(oldTour.head.elementAt(k));
+                tail.addLast(oldTour.tail.elementAt(k));
             }
         }
 
+        head.addFirst(y1.from);
+        tail.addFirst(y1.to);
+        head.addFirst(yi.from);
+        tail.addFirst(yi.to);
 
 
-    return lkOptimalTour;
+        Double length = TSPFunctions.calculateEdgeLength(head, tail);
+        return new Tour(length, head, tail);
     }
-    public static DoublyLinkedListImpl<City> makeSwap(City t1, City t2, City t3, City t4,
-                                                       DoublyLinkedListImpl<City> lkOptimalTour) {
-        DoublyLinkedListImpl<City> newOptimal = new DoublyLinkedListImpl<City>();
-        newOptimal.addFirst(t2);
-        City loop1 = t3;
 
-        while(loop1 != t4){
-            if(loop1 != t2 && loop1 != t1) newOptimal.addFirst(loop1);
-            loop1 = lkOptimalTour.next(loop1);
+    public static class xiyiTour {
+        public Edge xi;
+        public Edge yi;
+        public Tour tour;
+        public xiyiTour(Edge xi, Edge yi, Tour tour) {
+            this.xi = xi;
+            this.yi = yi;
+            this.tour= tour;
         }
-        newOptimal.addFirst(t4);
-        City loop2 = t1;
-        while(loop1 != t2){
-            if(loop1 != t3 && loop1 != t4) newOptimal.addFirst(loop1);
-            loop1 = lkOptimalTour.next(loop1);
+    }
+
+    // Lambda opt operator that will replace all edges in xList (xi candidate included) wit yi (yi candidate included)
+    public static Tour makeLambdaSwap(ArrayList<Edge> xList, ArrayList<Edge> yList,Edge candidateXi, Edge yiCandidate,  Tour oldTour) {
+        System.out.println("Swap procedure for lambda opt");
+        if(candidateXi != null) {
+            xList.add(candidateXi);
+            yList.add(yiCandidate);
         }
-            return newOptimal;
-        }
+        for (int i = 0; i < xList.size(); i++) {
+            System.out.println("x" + (i + 1) + " = " + xList.get(i).from.id + " - " + xList.get(i).to.id);
 
 
-    //Compute A-nearness matrix
-    //calculateAlphaNearnessMatrix();
-// Expansion to lkh
-//    private static double[][] calculateAlphaNearnessMatrix(){
-//        double[][] alphaNearnessMatrix = new double[TOTAL_CITIES][TOTAL_CITIES];
-//
-//        // Choose random node V1
-//        Random rg = new Random();
-//        int a = rg.nextInt(TOTAL_CITIES);
-//        // Compute Minimum Spanning Tree without V1
-//
-//        // calculate 1-Tree
-//
-//        //calculate alpha nearness
-//        return alphaNearnessMatrix;
-//    }
+            System.out.println("y" + (i + 1) + " = " + yList.get(i).from.id + " - " + yList.get(i).to.id);
+
+        }
+
+        DoublyLinkedListImpl<City> head = new DoublyLinkedListImpl<>();
+        DoublyLinkedListImpl<City> tail = new DoublyLinkedListImpl<>();
+
+        for (int k = 1; k <= oldTour.head.size(); k++) {
+            City from = oldTour.head.elementAt(k);
+            City to = oldTour.tail.elementAt(k);
+
+            boolean isXi = false;
+            for(Edge xi: xList) {
+                if ((xi.from == from && xi.to == to) || (xi.to == from && xi.from == to)) {
+                    isXi = true;
+                }
+            }
+
+            if (!isXi) {
+                head.addLast(from);
+                tail.addLast(to);
+            }
+
+        }
+        for (int i = 0; i < xList.size(); i++) {
+            head.addFirst(yList.get(i).from);
+            tail.addFirst(yList.get(i).to);
+        }
+        if(candidateXi != null) {
+            xList.remove(candidateXi);
+            yList.remove(yiCandidate);
+        }
+        Double length = TSPFunctions.calculateEdgeLength(head, tail);
+        return new Tour(length, head, tail);
+    }
 }

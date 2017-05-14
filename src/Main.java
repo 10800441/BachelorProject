@@ -29,17 +29,18 @@ class Main {
 
 
     // percentage of preservation when applieing the reduce operator
-    private static final int PRESERVE = 100;
+    private static final int PRESERVE = 50;
 
-    private static final int SHAKE = 50;
+    private static final int SHAKE = 90;
     // Amount of cities in a perfect configuration instance (non reduced
     private static final int TOTAL_CITIES = 12;
 
     // Distance between cities in a perfect configuration instance
     private static final int XYdistance = 12;
 
-    private static DoublyLinkedListImpl<City> CITIES;
-    private static double[][] costMatrix;
+    private static ArrayList<City> emptyGrid;
+    public static double[][] costMatrix;
+    public static double[][] aNearness;
 
 
     public static void main(String[] args) {
@@ -52,28 +53,39 @@ class Main {
         //        CITIES = TSPFunctions.makeCityList();
 
         // Make a perfect grid
-        CITIES = TSPFunctions.makePerfectCityList(TOTAL_CITIES, XYdistance);
+        emptyGrid = TSPFunctions.makePerfectCityList(TOTAL_CITIES, XYdistance);
 
-        costMatrix = TSPFunctions.calculateCostMatrix(CITIES);
-        TSPFunctions.printCostMatrix(costMatrix);
 
-    // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         // MUTATING THE GRID
 
         // Reduction of the amount of cities
-        //CITIES = TSPFunctions.reduce(CITIES, PRESERVE);
+        //emptyGrid = TSPFunctions.reduce(emptyGrid, PRESERVE);
 
-        CITIES = TSPFunctions.shake(CITIES, costMatrix, XYdistance, SHAKE);
+        // Shake cities
+         //emptyGrid = TSPFunctions.shake(emptyGrid, XYdistance, SHAKE);
 
 
+        costMatrix = TSPFunctions.calculateCostMatrix(emptyGrid);
+        System.out.println("Cost of the edges:\n");
+        TSPFunctions.printCostMatrix(costMatrix, emptyGrid);
+
+//        KruskalAlgorithm kruskalAlgorithm = new KruskalAlgorithm(emptyGrid.size());
+//        kruskalAlgorithm.kruskalAlgorithm(costMatrix);
 
 
+//        aNearness = TSPFunctions.calculateAnearnessMatrix(emptyGrid);
+//        System.out.println("A-nearness of the edges:\n");
+//        TSPFunctions.printCostMatrix(aNearness, emptyGrid);
+
+     // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         // SOLVER
         //Use the original Lin-Kernighan algorithm
-        //DoublyLinkedListImpl<City> lkOptimalTour = Lin_Kernighan.solve_Lin_Kernighan(costMatrix);
 
+        Tour lkOptimalTour = Lin_Kernighan.solve_Lin_Kernighan(emptyGrid);
+        TSPFunctions.printGrid(lkOptimalTour, emptyGrid);
         // PrintGrid
-        TSPFunctions.printGrid(CITIES);
+        //TSPFunctions.printGrid(emptyGrid);
     }
 }
 
