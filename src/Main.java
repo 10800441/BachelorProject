@@ -81,9 +81,9 @@ class Main {
      // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         // SOLVER
         //Use the original Lin-Kernighan algorithm
-
+         TSPFunctions.printGrid(null, emptyGrid);
         Tour lkOptimalTour = Lin_Kernighan.solve_Lin_Kernighan(emptyGrid);
-        TSPFunctions.printGrid(lkOptimalTour, emptyGrid);
+
         // PrintGrid
         //TSPFunctions.printGrid(emptyGrid);
     }

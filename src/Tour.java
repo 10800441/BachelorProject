@@ -1,16 +1,11 @@
 import java.util.ArrayList;
 
-/**
- * Created by marty_000 on 4-5-2017.
- */
 public class Tour {
     double length;
     DoublyLinkedListImpl<City> head;
     DoublyLinkedListImpl<City> tail;
 
-
     public Tour(double length, DoublyLinkedListImpl<City> head, DoublyLinkedListImpl<City> tail) {
-
         this.length = length;
         this.head = head;
         this.tail = tail;

@@ -49,10 +49,17 @@ public class Lin_Kernighan {
             System.out.println("t1 = " + t1);
 
 
-            //Step 3
-            System.out.println("\n -> STEP 3, choose x1");
+           //Step 3
+           System.out.println("\n -> STEP 3, choose x1");
 
            ArrayList<City> t2Stack = new ArrayList<>();
+            for(City c: emptyGrid){
+                System.out.println(c);
+                System.out.println(tour.next(c));
+
+            }
+
+
             if (rd.nextBoolean()){
                 t2Stack.add(tour.next(t1));
                 t2Stack.add(tour.prev(t1));
@@ -60,10 +67,14 @@ public class Lin_Kernighan {
                 t2Stack.add(tour.prev(t1));
                 t2Stack.add(tour.next(t1));
             }
+            System.out.println("stack "+ t2Stack);
             boolean returnTo2 = false;
             for(City t2: t2Stack) {
 
                 if(!returnTo2) {
+                    System.out.println("t2 id "+ t2.id);
+
+                    System.out.println("edgelen  "+ Main.costMatrix[t1.id][t2.id]);
                     Edge x1 = new Edge(t1, t2, Main.costMatrix[t1.id][t2.id]);
 
                     System.out.print("\nx1 = " + x1.from.id + " - " + x1.to.id);
@@ -103,58 +114,63 @@ public class Lin_Kernighan {
 
                             // Loop over t3's
                             City t2i_1 = y1.to;
-                            while (t2i_1 != null && !returnTo2 && !returnToStep3) {
+                           // while (t2i_1 != null && !returnTo2 && !returnToStep3) {
                                 // Determine t2i-1
                                 t2i_1 = yList.get(yList.size() - 1).to;
                                 System.out.println("t2i-1 = city " + t2i_1.id);
 
                                // Step 6 choose the next xi and yi, if not possible returns null
-                                xiyiTour chosenEdges = chooseXiYi(tour, emptyGrid, t2i_1, x1.from, xList, yList);
-
-                                if (chosenEdges == null) {
-                                    System.out.println("- > STEP 12 no new xi is found ");
-                                    returnTo2 = true;
-                                }
-
-                                // If the distance is is shorter the tour is improved
-                                else if (chosenEdges.tour.length < tour.length) {
-                                    gain = tour.length - chosenEdges.tour.length;
+                                xiyiTour chosenx2y2 = chooseXiYi(tour, emptyGrid, t2i_1, x1.from, xList, yList);
+                            System.out.println("size " + chosenx2y2.tourList.size());
+                            for(int d = 0; d < chosenx2y2.tourList.size(); d++){
+System.out.println("tl" +chosenx2y2.tourList.get(d).length);
+                                // Check if the tour is improved
+                                if (chosenx2y2.tourList.get(d).length < tour.length) {
+                                    gain = tour.length - chosenx2y2.tourList.get(d).length;
                                     System.out.println("\nFound improvement, Gain = " + gain + ", back to step 2..");
-                                    tour = chosenEdges.tour;
-                                    returnToStep3 = true;
+                                    tour = chosenx2y2.tourList.get(d);
+                                    returnTo2 = true;
                                     break;
-                                } else {
-
-                                // xi is set
-                                xList.add(chosenEdges.xi);
-
-                                // Determine the new t2i;
-                                Stack<Edge> yiEdges = new Stack<>();
-                                City t2i = xList.get(xList.size() - 1).to;
-
-                                // stack all possible yi candidates
-                                ArrayList<Edge> candidateYiEdges = TSPFunctions.createCityEdgeSet(t2i, emptyGrid);
-                                for (Edge candidateYi : candidateYiEdges) {
-                                    if (!tour.edgeInTour(candidateYi) && candidateYi != chosenEdges.yi && !yList.contains(candidateYi) && !yList.contains(candidateYi.Inverse())) {
-                                        yiEdges.push(candidateYi);
-                                    }
                                 }
+                                // Tour is not improved attempting higher order opt.
+                                else {
+                                    // xi is set
+                                    xList.add(chosenx2y2.xiList.get(d));
 
-                                while (!yiEdges.isEmpty() && !returnToStep3) {
-                                    Edge yi = yiEdges.pop();
-                                    System.out.println("yi = " + yi);
-                                    yList.add(yi);
-                                    // Determine the new t2i_1
-                                    t2i_1 = yi.to;
+                                    // Determine the new t2i;
+                                    ArrayList<Edge> yiEdges = new ArrayList<>();
+                                    City t2i = xList.get(xList.size() - 1).to;
+
+                                    // stack all possible yi candidates
+                                    ArrayList<Edge> candidateYiEdges = TSPFunctions.createCityEdgeSet(t2i, emptyGrid);
+                                    for (Edge candidateYi : candidateYiEdges) {
+                                        if (!tour.edgeInTour(candidateYi) && candidateYi != chosenx2y2.yiList.get(d) && calculateGain(xList,yList, candidateYi.length)> 0 &&!yList.contains(candidateYi) && !yList.contains(candidateYi.Inverse())) {
+                                            yiEdges.add(candidateYi);
+                                        }
+                                    }
+
+                                    for(Edge y2: yiEdges){
+                                        if(!returnToStep3) {
+                                            System.out.println("yi = " + y2);
+
+
+                                            yList.add(y2);
+                                            // Determine the new t2i_1
+                                            t2i_1 = y2.to;
+                                            xiyiTour chosenx3y3 = chooseXiYi(tour, emptyGrid, t2i_1, x1.from, xList, yList);
+                                            System.exit(1);
+
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
                 if (returnTo2) System.out.println("returning to step 2....");
-                System.out.println("trying alternative for x1");
+
                 }
-            }
+
         }
         return tour;
     }
@@ -163,8 +179,9 @@ public class Lin_Kernighan {
 
     private static xiyiTour chooseXiYi(Tour tour, ArrayList<City>emptyGrid, City t2i_1, City t1, ArrayList<Edge> xList, ArrayList<Edge> yList){
         // STEP 6
-        Edge xi = null;
-        Edge yi = null;
+        ArrayList<Edge>  xiList = new ArrayList<>();
+        ArrayList<Edge> yiList = new ArrayList<>();
+        ArrayList<Tour> tourList = new ArrayList<>();
         System.out.println("\n -> STEP 6");
 
         // Search trough all edges of t3
@@ -172,7 +189,6 @@ public class Lin_Kernighan {
         Tour noSubTour = null;
         for (Edge candidateXi : candidateXiEdges) {
 
-            //TODO x2 y2 are wrong
             // Take an egde that is in the current tour but not already in xiList
             if ((tour.next(t2i_1) == candidateXi.to || tour.prev(t2i_1) == candidateXi.to) &&
                     (!xList.contains(candidateXi) && !xList.contains(candidateXi.Inverse())) && candidateXi.to != t1) {
@@ -182,27 +198,25 @@ public class Lin_Kernighan {
 
                 Edge yiCandidate = new Edge(candidateXi.to, t1, Main.costMatrix[t1.id][candidateXi.to.id]);
 
-                System.out.println("candidateXi = " + candidateXi.from + " - " + candidateXi.to);
-                System.out.println("yiCandidate = " + yiCandidate.from + " - " + yiCandidate.to);
-
-
                 // Sub tour elimination; there should be exactly one possible xi
                 noSubTour = makeLambdaSwap(xList, yList, candidateXi, yiCandidate, tour);
                 // if there is a valid tour keep xi
                 if (TSPFunctions.isValidTour(noSubTour, emptyGrid)) {
-                    xi = candidateXi;
-                    System.out.println("Valid tour found: xi = " + xi);
-
-                    return new xiyiTour(xi, yiCandidate, noSubTour);
+                    System.out.println("Valid tour found");
+                    System.out.println("candidateXi = " + candidateXi.from + " - " + candidateXi.to);
+                    System.out.println("yiCandidate = " + yiCandidate.from + " - " + yiCandidate.to);
+                    xiList.add(candidateXi);
+                    yiList.add(yiCandidate);
+                    tourList.add(noSubTour);
                 }
             }
         }
-        return null;
+        return new xiyiTour(xiList, yiList, tourList);
     }
 
-    public static double calculateGain(ArrayList<Edge> xiList, ArrayList<Edge> yiList) {
+    public static double calculateGain(ArrayList<Edge> xiList, ArrayList<Edge> yiList, double length) {
         double xiLength = 0.0;
-        double yiLength = 0.0;
+        double yiLength = length;
         for (Edge xEdge : xiList) xiLength += xEdge.length;
         for (Edge yEdge : yiList) yiLength += yEdge.length;
 
@@ -247,13 +261,13 @@ public class Lin_Kernighan {
     }
 
     public static class xiyiTour {
-        public Edge xi;
-        public Edge yi;
-        public Tour tour;
-        public xiyiTour(Edge xi, Edge yi, Tour tour) {
-            this.xi = xi;
-            this.yi = yi;
-            this.tour= tour;
+        public ArrayList<Edge> xiList;
+        public ArrayList<Edge> yiList;
+        public ArrayList<Tour> tourList;
+        public xiyiTour(ArrayList<Edge> xiList, ArrayList<Edge> yiList, ArrayList<Tour> tourList) {
+            this.xiList = xiList;
+            this.yiList = yiList;
+            this.tourList= tourList;
         }
     }
 
